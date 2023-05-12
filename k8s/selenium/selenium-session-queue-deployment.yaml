@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-session-queue
+  labels:
+    app: selenium-session-queue
+    name: selenium-session-queue
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-session-queue
+  template:
+    metadata:
+      labels:
+        app: selenium-session-queue
+        name: selenium-session-queue
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-session-queue
+          image: selenium/session-queue:4.9.1-20230508
+          env:
+            - name: SE_SESSION_REQUEST_TIMEOUT
+              value: "600"
+            - name: SE_SESSION_RETRY_INTERVAL
+              value: "5"
+          ports:
+            - containerPort: 5559
+              protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-session-queue
+  labels:
+    name: selenium-session-queue
+    component: "selenium-grid-4"
+spec:
+  type: ClusterIP
+  selector:
+    app: selenium-session-queue
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 5559
+      targetPort: 5559
